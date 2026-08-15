@@ -294,6 +294,18 @@
             font-weight: bold;
             text-shadow: 0 0 5px rgba(255, 215, 0, 0.8);
         }
+
+        .firebase-status {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            border: 1px solid #00ff00;
+        }
     </style>
 </head>
 <body>
@@ -338,7 +350,42 @@
         <div class="info-bar" id="infoBar">Click SPIN to start playing!</div>
     </div>
 
-    <script>
+    <div class="firebase-status" id="firebaseStatus">🔄 Initializing...</div>
+
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+        import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-analytics.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDndzhlq7tIR03UZroax1iE59RXF27I4Z8",
+            authDomain: "jili-c6b1a.firebaseapp.com",
+            projectId: "jili-c6b1a",
+            storageBucket: "jili-c6b1a.firebasestorage.app",
+            messagingSenderId: "665157239109",
+            appId: "1:665157239109:web:758500e566830c29b57e2c",
+            measurementId: "G-YSZYWY42QB"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+
+        // Update Firebase status
+        document.getElementById('firebaseStatus').textContent = '✅ Firebase Connected';
+        document.getElementById('firebaseStatus').style.color = '#00ff00';
+
+        // Expose logging function globally
+        window.logGameEvent = (eventName, eventData = {}) => {
+            try {
+                logEvent(analytics, eventName, eventData);
+                console.log(`📊 Event logged: ${eventName}`, eventData);
+            } catch (error) {
+                console.error(`❌ Error logging event: ${eventName}`, error);
+            }
+        };
+
         // Game State
         const gameState = {
             balance: 1000,
@@ -346,6 +393,9 @@
             multiplier: 3,
             isSpinning: false,
             currentWin: 0,
+            totalSpins: 0,
+            totalWins: 0,
+            totalLosses: 0,
         };
 
         const SYMBOLS = ['J', 'Q', 'K', 'A', '♠', '♥', '♦', '♣'];
@@ -439,6 +489,10 @@
             if (scatterCount >= 3) {
                 totalWin += gameState.bet * 50;
                 showMessage(`SCATTER BONUS! ✨ +${gameState.bet * 50}`);
+                window.logGameEvent('scatter_bonus', {
+                    scatter_count: scatterCount,
+                    bonus_amount: gameState.bet * 50
+                });
             }
 
             // Count WILD for bonus
@@ -450,6 +504,10 @@
             if (wildCount >= 2) {
                 totalWin += gameState.bet * 30;
                 showMessage(`WILD HIT! ⭐ +${gameState.bet * 30}`);
+                window.logGameEvent('wild_bonus', {
+                    wild_count: wildCount,
+                    bonus_amount: gameState.bet * 30
+                });
             }
 
             gameState.currentWin = Math.floor(totalWin * gameState.multiplier);
@@ -457,12 +515,13 @@
         }
 
         // Perform spin
-        async function spin(isturbo = false) {
+        async function spin(isTurbo = false) {
             if (gameState.isSpinning || gameState.balance < gameState.bet) return;
 
             gameState.isSpinning = true;
             gameState.currentWin = 0;
             gameState.balance -= gameState.bet;
+            gameState.totalSpins++;
 
             document.getElementById('spinBtn').disabled = true;
             document.getElementById('turboBtn').disabled = true;
@@ -471,9 +530,17 @@
             const symbols = document.querySelectorAll('.symbol');
             symbols.forEach(s => s.classList.remove('winning'));
 
+            // Log spin event
+            window.logGameEvent('spin', {
+                multiplier: gameState.multiplier,
+                bet_amount: gameState.bet,
+                turbo_mode: isTurbo,
+                balance_before: gameState.balance + gameState.bet
+            });
+
             // Spin animation
-            const spinTime = isturbo ? 500 : 1200;
-            const spinCount = isturbo ? 3 : 8;
+            const spinTime = isTurbo ? 500 : 1200;
+            const spinCount = isTurbo ? 3 : 8;
 
             for (let i = 0; i < spinCount; i++) {
                 symbols.forEach(s => s.classList.add('spinning'));
@@ -491,11 +558,28 @@
 
             if (win > 0) {
                 gameState.balance += win;
+                gameState.totalWins++;
                 showMessage(`COMBO! 💰 +${win}`);
                 document.getElementById('infoBar').innerHTML = `<span class="win-message">You won ${win} coins! 🎉</span>`;
+
+                // Log win event
+                window.logGameEvent('spin_win', {
+                    win_amount: win,
+                    balance_after: gameState.balance,
+                    multiplier_used: gameState.multiplier,
+                    total_spins: gameState.totalSpins
+                });
             } else {
+                gameState.totalLosses++;
                 showMessage('TRY AGAIN');
                 document.getElementById('infoBar').textContent = 'No winning combination...';
+
+                // Log loss event
+                window.logGameEvent('spin_loss', {
+                    balance_after: gameState.balance,
+                    bet_lost: gameState.bet,
+                    total_spins: gameState.totalSpins
+                });
             }
 
             updateStats();
@@ -524,22 +608,55 @@
                 showMessage('BONUS ACTIVATED! 💥');
                 document.getElementById('infoBar').textContent = 'Bonus activated! Extra symbols added.';
                 updateStats();
+
+                // Log bonus purchase event
+                window.logGameEvent('bonus_purchase', {
+                    cost: 50,
+                    reward: 100,
+                    balance_after: gameState.balance
+                });
             }
         });
 
         // Multiplier buttons
         document.querySelectorAll('.multiplier-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                const oldMultiplier = gameState.multiplier;
                 document.querySelectorAll('.multiplier-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
                 gameState.multiplier = parseInt(e.target.dataset.multiplier);
                 updateStats();
+
+                // Log multiplier change event
+                window.logGameEvent('multiplier_change', {
+                    from_multiplier: oldMultiplier,
+                    to_multiplier: gameState.multiplier,
+                    new_bet: gameState.bet * gameState.multiplier
+                });
             });
+        });
+
+        // Log game session start
+        window.logGameEvent('game_session_start', {
+            initial_balance: gameState.balance,
+            timestamp: new Date().toISOString()
         });
 
         // Initialize
         initGrid();
         updateStats();
+
+        // Log session end on page unload
+        window.addEventListener('beforeunload', () => {
+            window.logGameEvent('game_session_end', {
+                final_balance: gameState.balance,
+                total_spins: gameState.totalSpins,
+                total_wins: gameState.totalWins,
+                total_losses: gameState.totalLosses,
+                net_change: gameState.balance - 1000,
+                timestamp: new Date().toISOString()
+            });
+        });
     </script>
 </body>
 </html>
