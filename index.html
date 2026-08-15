@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jili Super Ace - Online Casino Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2a1a5e 0%, #4a1a8e 50%, #2a1a5e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .casino-container {
+            background: linear-gradient(to bottom, #3a2570 0%, #1a0a3e 100%);
+            border: 3px solid #ffd700;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.5), 0 0 100px rgba(255, 100, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(58, 37, 112, 0.6);
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 10px;
+            background: rgba(42, 26, 94, 0.8);
+            border: 1px solid #ff6400;
+            border-radius: 8px;
+            color: #fff;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: #ff9500;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            color: #ffd700;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.6);
+        }
+
+        .multiplier-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+        }
+
+        .multiplier-btn {
+            padding: 10px;
+            background: linear-gradient(135deg, #ff6400, #ff9500);
+            border: 2px solid #ffd700;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.1em;
+            cursor: pointer;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            transition: all 0.2s;
+        }
+
+        .multiplier-btn:hover {
+            box-shadow: 0 0 15px rgba(255, 100, 0, 0.8);
+            transform: scale(1.05);
+        }
+
+        .multiplier-btn.active {
+            box-shadow: 0 0 25px rgba(255, 215, 0, 1);
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #000;
+        }
+
+        .slot-grid-wrapper {
+            background: linear-gradient(to bottom, #1a0a3e, #2a1a5e);
+            border: 3px solid #ffd700;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .slot-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .symbol {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #4a3a7a, #2a1a5a);
+            border: 2px solid #ff6400;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: bold;
+            cursor: default;
+            transition: all 0.1s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .symbol.spinning {
+            animation: spin 0.1s linear;
+        }
+
+        @keyframes spin {
+            0%, 100% { transform: rotateY(0deg); }
+            50% { transform: rotateY(180deg); }
+        }
+
+        .symbol.wild {
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            border-color: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.8);
+            color: #000;
+        }
+
+        .symbol.scatter {
+            background: linear-gradient(135deg, #ffaa00, #ff6400);
+            border-color: #ffff00;
+            box-shadow: 0 0 15px rgba(255, 170, 0, 0.8);
+            color: #fff;
+        }
+
+        .symbol.winning {
+            animation: glow 0.3s ease-in-out;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 1);
+            border-color: #ffff00;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(255, 215, 0, 1); }
+        }
+
+        .overlay-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            border: 3px solid #ff6400;
+            border-radius: 20px;
+            padding: 30px;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #000;
+            text-shadow: 2px 2px 4px rgba(255, 100, 0, 0.5);
+            box-shadow: 0 0 50px rgba(255, 215, 0, 1);
+            animation: popIn 0.3s ease-out;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .button-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .action-btn {
+            padding: 15px 20px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .spin-btn {
+            grid-column: span 2;
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            color: #fff;
+            font-size: 1.3em;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+        }
+
+        .spin-btn:hover:not(:disabled) {
+            box-shadow: 0 0 40px rgba(255, 0, 0, 1);
+            transform: scale(1.05);
+        }
+
+        .spin-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .turbo-btn {
+            background: linear-gradient(135deg, #ff6400, #ff9500);
+            color: #fff;
+        }
+
+        .turbo-btn:hover:not(:disabled) {
+            box-shadow: 0 0 20px rgba(255, 100, 0, 0.8);
+            transform: scale(1.05);
+        }
+
+        .turbo-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .buy-bonus-btn {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #000;
+            font-weight: bold;
+        }
+
+        .buy-bonus-btn:hover:not(:disabled) {
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            transform: scale(1.05);
+        }
+
+        .buy-bonus-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .info-bar {
+            text-align: center;
+            color: #ff9500;
+            font-size: 0.95em;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(42, 26, 94, 0.6);
+            border: 1px solid #ff6400;
+            border-radius: 8px;
+        }
+
+        .win-message {
+            color: #ffd700;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="casino-container">
+        <div class="header">
+            <h1>🎰 Jili Super Ace 🎰</h1>
+            <p>Online Casino Demo</p>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="stat-label">Balance</div>
+                <div class="stat-value" id="balance">1000</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Bet</div>
+                <div class="stat-value" id="bet">10</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Win</div>
+                <div class="stat-value" id="win">0</div>
+            </div>
+        </div>
+
+        <div class="multiplier-bar">
+            <button class="multiplier-btn" data-multiplier="1">×1</button>
+            <button class="multiplier-btn" data-multiplier="2">×2</button>
+            <button class="multiplier-btn active" data-multiplier="3">×3</button>
+            <button class="multiplier-btn" data-multiplier="5">×5</button>
+        </div>
+
+        <div class="slot-grid-wrapper">
+            <div class="slot-grid" id="slotGrid"></div>
+        </div>
+
+        <div class="button-row">
+            <button class="action-btn spin-btn" id="spinBtn">🎯 SPIN</button>
+            <button class="action-btn turbo-btn" id="turboBtn">⚡ TURBO</button>
+            <button class="action-btn buy-bonus-btn" id="buyBonusBtn">💰 BUY BONUS</button>
+        </div>
+
+        <div class="info-bar" id="infoBar">Click SPIN to start playing!</div>
+    </div>
+
+    <script>
+        // Game State
+        const gameState = {
+            balance: 1000,
+            bet: 10,
+            multiplier: 3,
+            isSpinning: false,
+            currentWin: 0,
+        };
+
+        const SYMBOLS = ['J', 'Q', 'K', 'A', '♠', '♥', '♦', '♣'];
+        const WILD = '⭐';
+        const SCATTER = '✨';
+        const ROWS = 4;
+        const COLS = 5;
+
+        // Initialize grid
+        function initGrid() {
+            const grid = document.getElementById('slotGrid');
+            grid.innerHTML = '';
+            for (let i = 0; i < ROWS * COLS; i++) {
+                const symbol = document.createElement('div');
+                symbol.className = 'symbol';
+                symbol.id = `symbol-${i}`;
+                grid.appendChild(symbol);
+            }
+            randomizeSymbols();
+        }
+
+        // Randomize symbols on grid
+        function randomizeSymbols() {
+            const symbols = document.querySelectorAll('.symbol');
+            symbols.forEach((sym, idx) => {
+                sym.classList.remove('wild', 'scatter', 'winning', 'spinning');
+                const rand = Math.random();
+                let newSymbol;
+
+                if (rand < 0.08) newSymbol = WILD;
+                else if (rand < 0.16) newSymbol = SCATTER;
+                else newSymbol = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+
+                sym.textContent = newSymbol;
+                sym.classList.add(newSymbol === WILD ? 'wild' : newSymbol === SCATTER ? 'scatter' : '');
+            });
+        }
+
+        // Show overlay message
+        function showMessage(text) {
+            const msg = document.createElement('div');
+            msg.className = 'overlay-message';
+            msg.textContent = text;
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 2000);
+        }
+
+        // Check for wins
+        function checkWins() {
+            const symbols = document.querySelectorAll('.symbol');
+            const grid = [];
+            symbols.forEach((s, i) => {
+                if (!grid[Math.floor(i / COLS)]) grid[Math.floor(i / COLS)] = [];
+                grid[Math.floor(i / COLS)][i % COLS] = s;
+            });
+
+            let totalWin = 0;
+            const winningSymbols = new Set();
+
+            // Check horizontal lines
+            for (let row = 0; row < ROWS; row++) {
+                for (let col = 0; col < COLS - 2; col++) {
+                    const sym1 = grid[row][col].textContent;
+                    const sym2 = grid[row][col + 1].textContent;
+                    const sym3 = grid[row][col + 2].textContent;
+
+                    if (sym1 && sym1 === sym2 && sym2 === sym3) {
+                        let multiplier = 1;
+                        if (sym1 === WILD) multiplier = 2.5;
+                        else if (sym1 === SCATTER) multiplier = 2;
+
+                        totalWin += gameState.bet * (3 + col) * multiplier;
+                        winningSymbols.add(grid[row][col]);
+                        winningSymbols.add(grid[row][col + 1]);
+                        winningSymbols.add(grid[row][col + 2]);
+                    }
+                }
+            }
+
+            // Highlight winning symbols
+            winningSymbols.forEach(sym => {
+                sym.classList.add('winning');
+            });
+
+            // Count SCATTER for bonus
+            let scatterCount = 0;
+            symbols.forEach(s => {
+                if (s.textContent === SCATTER) scatterCount++;
+            });
+
+            if (scatterCount >= 3) {
+                totalWin += gameState.bet * 50;
+                showMessage(`SCATTER BONUS! ✨ +${gameState.bet * 50}`);
+            }
+
+            // Count WILD for bonus
+            let wildCount = 0;
+            symbols.forEach(s => {
+                if (s.textContent === WILD) wildCount++;
+            });
+
+            if (wildCount >= 2) {
+                totalWin += gameState.bet * 30;
+                showMessage(`WILD HIT! ⭐ +${gameState.bet * 30}`);
+            }
+
+            gameState.currentWin = Math.floor(totalWin * gameState.multiplier);
+            return gameState.currentWin;
+        }
+
+        // Perform spin
+        async function spin(isturbo = false) {
+            if (gameState.isSpinning || gameState.balance < gameState.bet) return;
+
+            gameState.isSpinning = true;
+            gameState.currentWin = 0;
+            gameState.balance -= gameState.bet;
+
+            document.getElementById('spinBtn').disabled = true;
+            document.getElementById('turboBtn').disabled = true;
+            document.getElementById('buyBonusBtn').disabled = true;
+
+            const symbols = document.querySelectorAll('.symbol');
+            symbols.forEach(s => s.classList.remove('winning'));
+
+            // Spin animation
+            const spinTime = isturbo ? 500 : 1200;
+            const spinCount = isturbo ? 3 : 8;
+
+            for (let i = 0; i < spinCount; i++) {
+                symbols.forEach(s => s.classList.add('spinning'));
+                randomizeSymbols();
+                await new Promise(r => setTimeout(r, spinTime / spinCount));
+                symbols.forEach(s => s.classList.remove('spinning'));
+            }
+
+            // Final symbols
+            randomizeSymbols();
+            await new Promise(r => setTimeout(r, 300));
+
+            // Check for wins
+            const win = checkWins();
+
+            if (win > 0) {
+                gameState.balance += win;
+                showMessage(`COMBO! 💰 +${win}`);
+                document.getElementById('infoBar').innerHTML = `<span class="win-message">You won ${win} coins! 🎉</span>`;
+            } else {
+                showMessage('TRY AGAIN');
+                document.getElementById('infoBar').textContent = 'No winning combination...';
+            }
+
+            updateStats();
+
+            gameState.isSpinning = false;
+            document.getElementById('spinBtn').disabled = false;
+            document.getElementById('turboBtn').disabled = false;
+            document.getElementById('buyBonusBtn').disabled = gameState.balance < 50;
+        }
+
+        // Update stats display
+        function updateStats() {
+            document.getElementById('balance').textContent = gameState.balance;
+            document.getElementById('bet').textContent = gameState.bet * gameState.multiplier;
+            document.getElementById('win').textContent = gameState.currentWin;
+        }
+
+        // Event listeners
+        document.getElementById('spinBtn').addEventListener('click', () => spin(false));
+        document.getElementById('turboBtn').addEventListener('click', () => spin(true));
+
+        document.getElementById('buyBonusBtn').addEventListener('click', () => {
+            if (gameState.balance >= 50) {
+                gameState.balance -= 50;
+                gameState.balance += 100;
+                showMessage('BONUS ACTIVATED! 💥');
+                document.getElementById('infoBar').textContent = 'Bonus activated! Extra symbols added.';
+                updateStats();
+            }
+        });
+
+        // Multiplier buttons
+        document.querySelectorAll('.multiplier-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.multiplier-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                gameState.multiplier = parseInt(e.target.dataset.multiplier);
+                updateStats();
+            });
+        });
+
+        // Initialize
+        initGrid();
+        updateStats();
+    </script>
+</body>
+</html>
