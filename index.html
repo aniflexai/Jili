@@ -52,6 +52,35 @@
             text-shadow: 0 0 15px rgba(255, 102, 0, 1);
         }
 
+        .header-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .sound-toggle {
+            background: linear-gradient(135deg, #4a4a4a, #2a2a2a);
+            border: 2px solid #FF6600;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .sound-toggle:hover {
+            box-shadow: 0 0 15px rgba(255, 102, 0, 0.8);
+            transform: scale(1.05);
+        }
+
+        .sound-toggle.muted {
+            background: linear-gradient(135deg, #8B0000, #660000);
+            border-color: #FFD700;
+        }
+
         .stats-top {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -307,6 +336,10 @@
                 padding: 12px;
                 font-size: 0.95em;
             }
+
+            .header-controls {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -315,6 +348,9 @@
         <div class="header">
             <h1>🎰 JILI SUPER ACE 🎰</h1>
             <p>SLOT MACHINE</p>
+            <div class="header-controls">
+                <button class="sound-toggle" id="soundToggle">🔊 SOUND ON</button>
+            </div>
         </div>
 
         <div class="stats-top">
@@ -367,6 +403,102 @@
 
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
+
+        // Sound Generator - Web Audio API (no external files needed!)
+        class SoundManager {
+            constructor() {
+                this.audioContext = null;
+                this.soundEnabled = true;
+                this.initAudioContext();
+            }
+
+            initAudioContext() {
+                if (!this.audioContext) {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playBeep(frequency = 800, duration = 100, volume = 0.3) {
+                if (!this.soundEnabled || !this.audioContext) return;
+
+                const now = this.audioContext.currentTime;
+                const osc = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+
+                osc.connect(gain);
+                gain.connect(this.audioContext.destination);
+
+                osc.frequency.value = frequency;
+                osc.type = 'sine';
+
+                gain.gain.setValueAtTime(volume, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + duration / 1000);
+
+                osc.start(now);
+                osc.stop(now + duration / 1000);
+            }
+
+            spinSound() {
+                if (!this.soundEnabled || !this.audioContext) return;
+
+                const now = this.audioContext.currentTime;
+                for (let i = 0; i < 8; i++) {
+                    setTimeout(() => {
+                        this.playBeep(400 + i * 100, 80, 0.2);
+                    }, i * 40);
+                }
+            }
+
+            winSound() {
+                if (!this.soundEnabled || !this.audioContext) return;
+
+                const now = this.audioContext.currentTime;
+                const notes = [523, 659, 784, 1047];
+                
+                notes.forEach((freq, i) => {
+                    setTimeout(() => {
+                        this.playBeep(freq, 150, 0.4);
+                    }, i * 100);
+                });
+            }
+
+            jackpotSound() {
+                if (!this.soundEnabled || !this.audioContext) return;
+
+                const now = this.audioContext.currentTime;
+                const notes = [800, 1000, 1200, 1400, 1600, 1400, 1200, 1000];
+                
+                notes.forEach((freq, i) => {
+                    setTimeout(() => {
+                        this.playBeep(freq, 100, 0.3);
+                    }, i * 80);
+                });
+            }
+
+            bonusSound() {
+                if (!this.soundEnabled || !this.audioContext) return;
+
+                const now = this.audioContext.currentTime;
+                for (let i = 0; i < 10; i++) {
+                    const freq = 600 + Math.sin(i) * 200;
+                    setTimeout(() => {
+                        this.playBeep(freq, 100, 0.25);
+                    }, i * 50);
+                }
+            }
+
+            clickSound() {
+                if (!this.soundEnabled || !this.audioContext) return;
+                this.playBeep(600, 50, 0.15);
+            }
+
+            toggleSound() {
+                this.soundEnabled = !this.soundEnabled;
+                return this.soundEnabled;
+            }
+        }
+
+        const soundManager = new SoundManager();
 
         // Game State
         const gameState = {
@@ -509,18 +641,21 @@
             if (scatterCount >= 3) {
                 const bonus = gameState.bet * 100;
                 totalWin += bonus;
+                soundManager.bonusSound();
                 showMessage(`💥 SCATTER BONUS! +${bonus}`);
             }
 
             if (wildCount >= 3) {
                 const bonus = gameState.bet * 150;
                 totalWin += bonus;
+                soundManager.bonusSound();
                 showMessage(`🌟 WILD BONUS! +${bonus}`);
             }
 
             if (aceCount >= 5) {
                 const bonus = gameState.bet * 200;
                 totalWin += bonus;
+                soundManager.jackpotSound();
                 showMessage(`🎰 SUPER ACE! +${bonus}`);
             }
 
@@ -540,6 +675,9 @@
             gameState.isSpinning = true;
             gameState.balance -= actualBet;
             updateUI();
+
+            // Play spin start sound
+            soundManager.spinSound();
 
             // Disable buttons
             document.getElementById('spinBtn').disabled = true;
@@ -574,6 +712,9 @@
                 gameState.balance += win;
                 gameState.lastWin = win;
                 gameState.totalWins++;
+                
+                // Play win sound
+                soundManager.winSound();
                 showMessage(`🎊 WIN! +${win} COINS! 🎊`);
                 
                 logEvent(analytics, 'spin_win', {
@@ -584,6 +725,7 @@
                 });
             } else {
                 gameState.lastWin = 0;
+                soundManager.playBeep(300, 200, 0.15);
                 showMessage('Try Again!');
                 
                 logEvent(analytics, 'spin_loss', {
@@ -622,6 +764,7 @@
             if (gameState.bet < 1000) {
                 gameState.bet += 10;
                 gameState.multiplier = Math.floor(gameState.bet / 10);
+                soundManager.clickSound();
                 updateUI();
                 logEvent(analytics, 'bet_increase', { new_bet: gameState.bet });
             }
@@ -632,8 +775,23 @@
             if (gameState.bet > 10) {
                 gameState.bet -= 10;
                 gameState.multiplier = Math.floor(gameState.bet / 10);
+                soundManager.clickSound();
                 updateUI();
                 logEvent(analytics, 'bet_decrease', { new_bet: gameState.bet });
+            }
+        }
+
+        // Toggle sound
+        function toggleSound() {
+            const enabled = soundManager.toggleSound();
+            const btn = document.getElementById('soundToggle');
+            if (enabled) {
+                btn.textContent = '🔊 SOUND ON';
+                btn.classList.remove('muted');
+                soundManager.playBeep(800, 100, 0.3);
+            } else {
+                btn.textContent = '🔇 SOUND OFF';
+                btn.classList.add('muted');
             }
         }
 
@@ -642,6 +800,7 @@
         document.getElementById('turboBtn').addEventListener('click', () => spin(true));
         document.getElementById('increaseBet').addEventListener('click', increaseBet);
         document.getElementById('decreaseBet').addEventListener('click', decreaseBet);
+        document.getElementById('soundToggle').addEventListener('click', toggleSound);
 
         // Initialize
         initReels();
