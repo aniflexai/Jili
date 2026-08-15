@@ -18,99 +18,143 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 10px;
         }
 
         .game-container {
             background: linear-gradient(to bottom, #1a0033, #0d0221);
-            border: 5px solid #FFD700;
-            border-radius: 30px;
-            padding: 30px;
-            max-width: 1000px;
+            border: 4px solid #FFD700;
+            border-radius: 20px;
+            padding: 20px;
+            max-width: 900px;
             width: 100%;
             box-shadow: 0 0 80px rgba(255, 215, 0, 0.8), inset 0 0 40px rgba(255, 215, 0, 0.2);
+            overflow-x: hidden;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             color: #FFD700;
             text-shadow: 0 0 30px rgba(255, 215, 0, 1);
         }
 
         .header h1 {
-            font-size: 4em;
-            margin-bottom: 5px;
+            font-size: 2.5em;
+            margin-bottom: 3px;
             font-weight: bold;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
         }
 
         .header p {
-            font-size: 1.5em;
+            font-size: 1em;
             color: #FF6600;
             text-shadow: 0 0 15px rgba(255, 102, 0, 1);
         }
 
         .stats-top {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         .stat {
             background: rgba(255, 215, 0, 0.1);
             border: 2px solid #FF6600;
             border-radius: 10px;
-            padding: 12px;
+            padding: 10px;
             text-align: center;
             color: white;
         }
 
         .stat-label {
-            font-size: 0.85em;
+            font-size: 0.8em;
             color: #FFD700;
             text-transform: uppercase;
         }
 
         .stat-value {
-            font-size: 1.8em;
+            font-size: 1.4em;
             color: #FFD700;
             font-weight: bold;
-            margin-top: 5px;
+            margin-top: 3px;
+        }
+
+        .bet-controls {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+            background: rgba(255, 102, 0, 0.1);
+            border: 2px solid #FF6600;
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .bet-btn {
+            padding: 10px;
+            background: linear-gradient(135deg, #FF6600, #FFAA00);
+            border: 2px solid #FFD700;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95em;
+        }
+
+        .bet-btn:hover {
+            box-shadow: 0 0 20px rgba(255, 102, 0, 1);
+            transform: scale(1.05);
+        }
+
+        .bet-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .bet-display {
+            text-align: center;
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 1.3em;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
         }
 
         .reels-container {
             background: linear-gradient(to bottom, #0a0015, #1a0033);
             border: 4px solid #FFD700;
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
             box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
         }
 
         .reels {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 12px;
+            gap: 8px;
         }
 
         .reel {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             perspective: 1000px;
         }
 
         .reel-symbol {
             aspect-ratio: 1;
             background: linear-gradient(135deg, #2a1a52 0%, #1a0a32 100%);
-            border: 3px solid #FF6600;
-            border-radius: 15px;
+            border: 2px solid #FF6600;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3em;
+            font-size: 2em;
             font-weight: bold;
             color: white;
             text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
@@ -153,17 +197,17 @@
 
         .controls {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         button {
-            padding: 18px;
-            font-size: 1.2em;
+            padding: 15px;
+            font-size: 1.1em;
             font-weight: bold;
             border: none;
-            border-radius: 15px;
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s;
             text-transform: uppercase;
@@ -171,12 +215,11 @@
         }
 
         #spinBtn {
-            grid-column: span 2;
             background: linear-gradient(135deg, #FF0000, #CC0000);
             color: white;
             box-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
             border: 3px solid #FFFF00;
-            font-size: 1.5em;
+            font-size: 1.2em;
         }
 
         #spinBtn:hover:not(:disabled) {
@@ -213,9 +256,9 @@
             transform: translate(-50%, -50%);
             background: linear-gradient(135deg, #FFD700 0%, #FFED4E 100%);
             border: 4px solid #FF6600;
-            border-radius: 30px;
-            padding: 50px 80px;
-            font-size: 3.5em;
+            border-radius: 25px;
+            padding: 40px 60px;
+            font-size: 2.5em;
             font-weight: bold;
             color: black;
             text-shadow: 3px 3px 6px rgba(255, 102, 0, 0.8);
@@ -240,40 +283,30 @@
             background: rgba(255, 102, 0, 0.2);
             border: 2px solid #FF6600;
             border-radius: 10px;
-            padding: 15px;
+            padding: 12px;
             text-align: center;
             color: #FFD700;
             font-weight: bold;
-            font-size: 1.1em;
+            font-size: 1em;
         }
 
-        .multiplier-bar {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
-        }
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
 
-        .mult-btn {
-            padding: 10px;
-            background: linear-gradient(135deg, #FF6600, #FFAA00);
-            border: 2px solid #FFD700;
-            border-radius: 10px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+            .reel-symbol {
+                font-size: 1.5em;
+            }
 
-        .mult-btn.active {
-            background: linear-gradient(135deg, #FFD700, #FFFF00);
-            color: black;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 1);
-            transform: scale(1.1);
-        }
+            .stats-top {
+                grid-template-columns: repeat(3, 1fr);
+            }
 
-        .mult-btn:hover {
-            transform: scale(1.05);
+            button {
+                padding: 12px;
+                font-size: 0.95em;
+            }
         }
     </style>
 </head>
@@ -281,17 +314,13 @@
     <div class="game-container">
         <div class="header">
             <h1>🎰 JILI SUPER ACE 🎰</h1>
-            <p>ULTIMATE SLOT EXPERIENCE</p>
+            <p>SLOT MACHINE</p>
         </div>
 
         <div class="stats-top">
             <div class="stat">
                 <div class="stat-label">Balance</div>
                 <div class="stat-value" id="balance">5000</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Bet</div>
-                <div class="stat-value" id="bet">30</div>
             </div>
             <div class="stat">
                 <div class="stat-label">Win</div>
@@ -303,7 +332,11 @@
             </div>
         </div>
 
-        <div class="multiplier-bar" id="multiplierBar"></div>
+        <div class="bet-controls">
+            <button class="bet-btn" id="decreaseBet">➖ BET -</button>
+            <div class="bet-display">Bet: <span id="betAmount">10</span> | Win: <span id="multiplier">1</span>x</div>
+            <button class="bet-btn" id="increaseBet">BET + ➕</button>
+        </div>
 
         <div class="reels-container">
             <div class="reels" id="reels"></div>
@@ -311,10 +344,10 @@
 
         <div class="controls">
             <button id="spinBtn">🎯 SPIN</button>
-            <button id="turboBtn">⚡ TURBO SPIN</button>
+            <button id="turboBtn">⚡ TURBO</button>
         </div>
 
-        <div class="info-message" id="infoMessage">👈 Click SPIN to play! All reels spin together!</div>
+        <div class="info-message" id="infoMessage">👈 Adjust bet and click SPIN to play!</div>
     </div>
 
     <script type="module">
@@ -339,7 +372,7 @@
         const gameState = {
             balance: 5000,
             bet: 10,
-            multiplier: 3,
+            multiplier: 1,
             isSpinning: false,
             lastWin: 0,
             totalWins: 0,
@@ -424,27 +457,27 @@
 
                     if (sym1 && sym1 === sym2 && sym2 === sym3) {
                         let matchLength = 3;
-                        let multiplier = 1;
+                        let payout = 1;
 
                         // Check 4 in a row
                         if (col + 3 < REELS && sym3 === document.getElementById(`symbol-${col + 3}-${row}`).textContent) {
                             matchLength = 4;
-                            multiplier = 2;
+                            payout = 2;
                         }
 
                         // Check 5 in a row
                         if (col + 4 < REELS && document.getElementById(`symbol-${col + 3}-${row}`).textContent === document.getElementById(`symbol-${col + 4}-${row}`).textContent) {
                             matchLength = 5;
-                            multiplier = 3;
+                            payout = 3;
                         }
 
                         // Bonus for ACE
-                        if (sym1 === 'A') multiplier *= 2.5;
-                        if (sym1 === WILD) multiplier *= 2.5;
-                        if (sym1 === SCATTER) multiplier *= 2;
+                        if (sym1 === 'A') payout *= 2.5;
+                        if (sym1 === WILD) payout *= 2.5;
+                        if (sym1 === SCATTER) payout *= 2;
 
                         const baseWin = gameState.bet * (25 + matchLength * 10);
-                        totalWin += baseWin * multiplier * gameState.multiplier;
+                        totalWin += baseWin * payout * gameState.multiplier;
 
                         // Mark winning symbols
                         for (let i = col; i < col + matchLength; i++) {
@@ -511,6 +544,8 @@
             // Disable buttons
             document.getElementById('spinBtn').disabled = true;
             document.getElementById('turboBtn').disabled = true;
+            document.getElementById('decreaseBet').disabled = true;
+            document.getElementById('increaseBet').disabled = true;
 
             // Spin time
             const duration = isTurbo ? 600 : 1500;
@@ -519,7 +554,6 @@
 
             // Spin animation
             for (let i = 0; i < iterations; i++) {
-                // Add spinning animation to all symbols
                 const allSymbols = document.querySelectorAll('.reel-symbol');
                 allSymbols.forEach(s => s.classList.add('spinning'));
 
@@ -545,14 +579,16 @@
                 logEvent(analytics, 'spin_win', {
                     win_amount: win,
                     balance: gameState.balance,
-                    multiplier: gameState.multiplier
+                    multiplier: gameState.multiplier,
+                    bet: gameState.bet
                 });
             } else {
                 gameState.lastWin = 0;
                 showMessage('Try Again!');
                 
                 logEvent(analytics, 'spin_loss', {
-                    balance: gameState.balance
+                    balance: gameState.balance,
+                    bet: gameState.bet
                 });
             }
 
@@ -561,10 +597,13 @@
             gameState.isSpinning = false;
             document.getElementById('spinBtn').disabled = false;
             document.getElementById('turboBtn').disabled = false;
+            document.getElementById('decreaseBet').disabled = false;
+            document.getElementById('increaseBet').disabled = false;
 
             logEvent(analytics, 'spin', {
                 turbo: isTurbo,
                 multiplier: gameState.multiplier,
+                bet: gameState.bet,
                 balance: gameState.balance
             });
         }
@@ -572,14 +611,37 @@
         // Update UI
         function updateUI() {
             document.getElementById('balance').textContent = gameState.balance;
-            document.getElementById('bet').textContent = gameState.bet * gameState.multiplier;
+            document.getElementById('betAmount').textContent = gameState.bet;
+            document.getElementById('multiplier').textContent = gameState.multiplier;
             document.getElementById('lastWin').textContent = gameState.lastWin;
             document.getElementById('totalWins').textContent = gameState.totalWins;
+        }
+
+        // Increase bet
+        function increaseBet() {
+            if (gameState.bet < 1000) {
+                gameState.bet += 10;
+                gameState.multiplier = Math.floor(gameState.bet / 10);
+                updateUI();
+                logEvent(analytics, 'bet_increase', { new_bet: gameState.bet });
+            }
+        }
+
+        // Decrease bet
+        function decreaseBet() {
+            if (gameState.bet > 10) {
+                gameState.bet -= 10;
+                gameState.multiplier = Math.floor(gameState.bet / 10);
+                updateUI();
+                logEvent(analytics, 'bet_decrease', { new_bet: gameState.bet });
+            }
         }
 
         // Event listeners
         document.getElementById('spinBtn').addEventListener('click', () => spin(false));
         document.getElementById('turboBtn').addEventListener('click', () => spin(true));
+        document.getElementById('increaseBet').addEventListener('click', increaseBet);
+        document.getElementById('decreaseBet').addEventListener('click', decreaseBet);
 
         // Initialize
         initReels();
