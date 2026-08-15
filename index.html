@@ -260,6 +260,7 @@
         .spin-btn:hover:not(:disabled) {
             box-shadow: 0 0 50px rgba(255, 0, 0, 1);
             transform: scale(1.06);
+            cursor: pointer;
         }
 
         .spin-btn:active:not(:disabled) {
@@ -282,6 +283,7 @@
         .turbo-btn:hover:not(:disabled) {
             box-shadow: 0 0 30px rgba(255, 100, 0, 1);
             transform: scale(1.06);
+            cursor: pointer;
         }
 
         .turbo-btn:active:not(:disabled) {
@@ -305,6 +307,7 @@
         .buy-bonus-btn:hover:not(:disabled) {
             box-shadow: 0 0 30px rgba(255, 215, 0, 1);
             transform: scale(1.06);
+            cursor: pointer;
         }
 
         .buy-bonus-btn:active:not(:disabled) {
@@ -588,9 +591,23 @@
             return gameState.currentWin;
         }
 
+        // Enable/Disable buttons based on game state
+        function updateButtonStates() {
+            const actualBet = gameState.bet * gameState.multiplier;
+            const spinBtn = document.getElementById('spinBtn');
+            const turboBtn = document.getElementById('turboBtn');
+            const bonusBtn = document.getElementById('buyBonusBtn');
+
+            // Only disable spin/turbo if spinning or insufficient balance
+            spinBtn.disabled = gameState.isSpinning || gameState.balance < actualBet;
+            turboBtn.disabled = gameState.isSpinning || gameState.balance < actualBet;
+            
+            // Only disable bonus if already spinning or insufficient balance for bonus
+            bonusBtn.disabled = gameState.isSpinning || gameState.balance < 100;
+        }
+
         // Perform spin
         async function spin(isTurbo = false) {
-            // FIX: Check balance against actual bet (with multiplier)
             const actualBet = gameState.bet * gameState.multiplier;
             if (gameState.isSpinning || gameState.balance < actualBet) return;
 
@@ -599,9 +616,8 @@
             gameState.balance -= actualBet;
             gameState.totalSpins++;
 
-            document.getElementById('spinBtn').disabled = true;
-            document.getElementById('turboBtn').disabled = true;
-            document.getElementById('buyBonusBtn').disabled = true;
+            // Disable buttons during spin
+            updateButtonStates();
 
             const symbols = document.querySelectorAll('.symbol');
             symbols.forEach(s => s.classList.remove('winning'));
@@ -660,10 +676,11 @@
 
             updateStats();
 
+            // IMPORTANT: Set isSpinning to false FIRST before updating button states
             gameState.isSpinning = false;
-            document.getElementById('spinBtn').disabled = false;
-            document.getElementById('turboBtn').disabled = false;
-            document.getElementById('buyBonusBtn').disabled = gameState.balance < 100;
+            
+            // Then re-enable buttons
+            updateButtonStates();
         }
 
         // Update stats display
@@ -678,12 +695,13 @@
         document.getElementById('turboBtn').addEventListener('click', () => spin(true));
 
         document.getElementById('buyBonusBtn').addEventListener('click', () => {
-            if (gameState.balance >= 100) {
+            if (!gameState.isSpinning && gameState.balance >= 100) {
                 gameState.balance -= 100;
                 gameState.balance += 250;
                 showMessage('💥 BONUS ACTIVATED! 💥');
                 document.getElementById('infoBar').textContent = '🎁 Bonus Round Activated! Extra rewards ahead!';
                 updateStats();
+                updateButtonStates();
 
                 // Log bonus purchase event
                 window.logGameEvent('bonus_purchase', {
@@ -697,11 +715,15 @@
         // Multiplier buttons
         document.querySelectorAll('.multiplier-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                // Don't allow changing multiplier during spin
+                if (gameState.isSpinning) return;
+                
                 const oldMultiplier = gameState.multiplier;
                 document.querySelectorAll('.multiplier-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
                 gameState.multiplier = parseInt(e.target.dataset.multiplier);
                 updateStats();
+                updateButtonStates();
 
                 // Log multiplier change event
                 window.logGameEvent('multiplier_change', {
@@ -721,6 +743,7 @@
         // Initialize
         initGrid();
         updateStats();
+        updateButtonStates();
 
         // Log session end on page unload
         window.addEventListener('beforeunload', () => {
